@@ -34,6 +34,9 @@ torch::Tensor AttentionImpl::forward(const torch::Tensor& query,
   std::tie(q, k) = handler_->apply_pos_emb(q, k, positions);
 
   // append key and value to kv_cache
+  // 如果是prefill阶段,那么就kv就不放入到kv cache中.
+  // 如果是decode阶段,那么kv就放入到kv cache中.
+  // 因此推理的是softmax()
   handler_->append_kv_cache(kv_cache, k, v, input_params);
 
   auto output = torch::empty_like(q);
