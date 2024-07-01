@@ -38,6 +38,7 @@ torch::Tensor AttentionImpl::forward(const torch::Tensor& query,
   // 如果是decode阶段,那么kv就放入到kv cache中.
   // 因此推理的是softmax()
   handler_->append_kv_cache(kv_cache, k, v, input_params);
+  // 因为apply_pos_emb是在append_kv_cache，因此kv cache中的key cache是包含了位置编码的信息+语义embedding的信息。
 
   auto output = torch::empty_like(q);
   if (input_params.empty_kv_cache) {
