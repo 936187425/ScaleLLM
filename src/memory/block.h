@@ -38,7 +38,7 @@ class Block final {
   uint32_t size() const { return size_; }
 
   // get the reference count, 0 if the block is invalid after move
-  uint32_t ref_count() const { return ref_count_ == nullptr ? 0 : *ref_count_; }
+  uint32_t ref_count() const { return ref_count_ == nullptr ? 0 : *ref_count_; } //ref_count__ 
 
   // check if the block is shared
   bool is_shared() const { return ref_count() > 1; }

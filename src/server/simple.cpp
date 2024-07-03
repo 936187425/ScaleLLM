@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
 
     // create a request
     std::vector<int> prompt_tokens;
-    tokenizer->encode(input, &prompt_tokens);
+    tokenizer->encode(input, &prompt_tokens); //将输入的seq进行分词乘 token id.
     const int64_t prompt_token_len = static_cast<int64_t>(prompt_tokens.size());
     const size_t capacity = prompt_tokens.size() + FLAGS_max_seq_len +
                             FLAGS_num_speculative_tokens + 1;

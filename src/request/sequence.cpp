@@ -170,17 +170,17 @@ size_t Sequence::kv_cache_capacity() const {
 }
 
 std::vector<int32_t> Sequence::kv_cache_slots(int32_t pos_start,
-                                              int32_t pos_end) const {
+                                              int32_t pos_end) const { //pos_start:n_kv_cache_tokens,pos_end:seq_len
   CHECK(!blocks_.empty()) << "no cache blocks available";
 
   std::vector<int32_t> slots;
-  slots.reserve(pos_end - pos_start);
+  slots.reserve(pos_end - pos_start); //当前forward的长度:pos_end-pos_start
 
-  const size_t block_size = blocks_[0].size();
+  const size_t block_size = blocks_[0].size(); //每个block的长度
   for (int32_t i = pos_start; i < pos_end; ++i) {
-    const int32_t block_id = blocks_[i / block_size].id();
-    const int32_t block_offset = i % block_size;
-    slots.push_back(block_id * block_size + block_offset);
+    const int32_t block_id = blocks_[i / block_size].id(); // blocks_[i/block_size].id() 
+    const int32_t block_offset = i % block_size;         
+    slots.push_back(block_id * block_size + block_offset); //计算出新tokens的id号
   }
   return slots;
 }

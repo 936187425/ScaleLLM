@@ -53,7 +53,7 @@ struct InputParameters {
   // block ids for each sequence.
   // used in attention kernel to fetch cached key-value.
   // IntTensor: [n_seq, max_n_blocks]
-  torch::Tensor block_tables;
+  torch::Tensor block_tables; //记录每个序列在KV cache中分配的block id list.
 };
 
 }  // namespace llm

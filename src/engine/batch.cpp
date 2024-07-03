@@ -198,7 +198,7 @@ ModelInput Batch::prepare_model_input(uint32_t num_decoding_tokens,
     const auto blocks = sequence->blocks();
     const auto slot_ids = sequence->kv_cache_slots(n_kv_cache_tokens, seq_len);
     new_token_slot_ids.insert(
-        new_token_slot_ids.end(), slot_ids.begin(), slot_ids.end());
+        new_token_slot_ids.end(), slot_ids.begin(), slot_ids.end()); //这个计算的是该batch的new tokens
 
     // construct block ids for each sequence
     std::vector<int32_t> block_ids;

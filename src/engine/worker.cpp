@@ -52,7 +52,7 @@ bool Worker::init_kv_cache(const std::vector<int64_t>& kv_cache_shape) {
   const int64_t num_layers = args_.n_layers();
   kv_caches_.reserve(num_layers);
   for (int64_t i = 0; i < num_layers; ++i) {
-    auto key_cache =
+    auto key_cache =  
         torch::empty(kv_cache_shape, torch::dtype(dtype_).device(device_));
     auto value_cache =
         torch::empty(kv_cache_shape, torch::dtype(dtype_).device(device_));

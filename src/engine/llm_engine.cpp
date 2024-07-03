@@ -311,7 +311,7 @@ bool LLMEngine::init_kv_cache(int64_t n_blocks) {
 
   // init kv cache for each worker
   const std::vector<int64_t> kv_cache_shape = {
-      n_blocks, block_size, n_local_kv_heads_, head_dim_};
+      n_blocks, block_size, n_local_kv_heads_, head_dim_}; //n_local_kv_heads是合理的，因为在tensor parallel里会对n_kv_heads进行划分,n_local_kv_heads=max(1,n_kv_heads/world_size)
   LOG(INFO) << "Initializing kv cache with shape: [" << kv_cache_shape << "]";
 
   // initialize block manager
