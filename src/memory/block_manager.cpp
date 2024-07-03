@@ -25,29 +25,29 @@ bool BlockManager::allocate_blocks_for(Sequence* sequence) {
   return allocate_blocks_for(sequence, sequence->num_tokens());
 }
 
-bool BlockManager::allocate_blocks_for(Sequence* sequence, size_t num_tokens) {
+bool BlockManager::allocate_blocks_for(Sequence* sequence, size_t num_tokens) { //sequence是一个query,num_token是该sequence的token 长度.
   DCHECK(sequence != nullptr);
   // first try to allocate shared blocks
-  if (sequence->num_blocks() == 0) {
+  if (sequence->num_blocks() == 0) { 
     allocate_shared_blocks_for(sequence);
   }
 
   const size_t num_blocks = sequence->num_blocks();
   // round up to the nearest block number
   const size_t block_size = options_.block_size();
-  const size_t num_blocks_needed = (num_tokens + block_size - 1) / block_size;
+  const size_t num_blocks_needed = (num_tokens + block_size - 1) / block_size; //计算出num_tokens需要的blocks数. num_tokens+block_size-1目的是向上取整.
   if (num_blocks_needed <= num_blocks) {
     return true;
   }
-
-  const uint32_t num_additional_blocks = num_blocks_needed - num_blocks;
-  if (!has_enough_blocks(num_additional_blocks)) {
+  
+  const uint32_t num_additional_blocks = num_blocks_needed - num_blocks; //计算出申请的新blocks数
+  if (!has_enough_blocks(num_additional_blocks)) { //查询GPU里是否有额外的global memory空间
     // not enough blocks
     return false;
   }
 
-  const auto block_ids = block_allocator_.allocate(num_additional_blocks);
-  sequence->append_blocks(block_ids);
+  const auto block_ids = block_allocator_.allocate(num_additional_blocks); //分配额外的blocks
+  sequence->append_blocks(block_ids); 
   return true;
 }
 
