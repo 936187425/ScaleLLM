@@ -83,6 +83,7 @@ void BlockManager::release_blocks_for(Sequence* sequence) {
   sequence->release_blocks();
 }
 
+// num_blocks:需要额外申请的block数
 bool BlockManager::has_enough_blocks(uint32_t num_blocks) {
   // still have enough blocks
   if (num_blocks <= block_allocator_.free_block_count()) {
