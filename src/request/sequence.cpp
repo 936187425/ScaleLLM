@@ -170,7 +170,11 @@ size_t Sequence::kv_cache_capacity() const {
 }
 
 std::vector<int32_t> Sequence::kv_cache_slots(int32_t pos_start,
-                                              int32_t pos_end) const { //pos_start:n_kv_cache_tokens,pos_end:seq_len
+                                              int32_t pos_end) const { //pos_start:n_kv_cache_tokens,pos_end:seq_len,
+  /*           pos id:
+  * seq pos id list: 0 1 2 3 4 5 6 7 .....
+  * seq id to slot id: blocks_[i/block_size].id()*block_size+i%block_size.      
+  */
   CHECK(!blocks_.empty()) << "no cache blocks available";
 
   std::vector<int32_t> slots;
