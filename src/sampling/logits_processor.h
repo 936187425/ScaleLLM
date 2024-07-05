@@ -17,7 +17,7 @@ inline void apply_temperature_penalty(torch::Tensor& logits,
 }
 
 inline void apply_repetition_penalty(torch::Tensor& logits,
-                                     const torch::Tensor& unique_token_ids,
+                                     const torch::Tensor& unique_token_ids, //就是在generated的该序列的tokenid号.
                                      const torch::Tensor& /*unique_token_lens*/,
                                      const torch::Tensor& penalties) {
   // For now, the padding token (id 0) also gets penalized unexpectedly based on
@@ -25,11 +25,12 @@ inline void apply_repetition_penalty(torch::Tensor& logits,
   // TODO: filter out the padding token ids
 
   // select the logits for tokens of each sequence
-  auto score = logits.gather(/*dim=*/1, /*index=*/unique_token_ids);
+  auto score = logits.gather(/*dim=*/1, /*index=*/unique_token_ids);// logits: [num_seqs, vocab_size],unique_token_ids:[num_seqs,n_tokens]
 
   // if score < 0 then repetition penalty has to be multiplied to reduce the
   // previous token probability
   score = torch::where(score < 0, score * penalties, score / penalties);
+  // 把generated的该序列的token id号相应的概率值变得更小一点,因为如果score<0,则必须乘以penalties才会更小,如果score>0,则必须除以penalties才会更大.
 
   // scatter the modified score back to logits
   logits.scatter_(/*dim=*/1, /*index=*/unique_token_ids, /*src=*/score);
