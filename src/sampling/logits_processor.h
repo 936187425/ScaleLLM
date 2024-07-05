@@ -38,17 +38,18 @@ inline void apply_repetition_penalty(torch::Tensor& logits,
 
 inline void apply_frequency_presence_penalty(
     torch::Tensor& logits,
-    const torch::Tensor& unique_token_ids,
-    const torch::Tensor& unique_token_counts,
+    const torch::Tensor& unique_token_ids, //每个序列generated的独一无二的token id号
+    const torch::Tensor& unique_token_counts,//unique_token_ids对应的token在generated seq中出现的次数
     const torch::Tensor& /*unique_token_lens*/,
     const torch::Tensor& frequency_penalties,
     const torch::Tensor& presence_penalties) {
   // select the logits for tokens of each sequence
+  // logits: [num_seqs, vocab_size],unique_token_ids:[num_seqs,n_tokens]
   auto score = logits.gather(/*dim=*/1, /*index=*/unique_token_ids);
 
   // apply frequency and presence penalties
   score.sub_(unique_token_counts * frequency_penalties);
-  score.sub_((unique_token_counts > 0) * presence_penalties);
+  score.sub_((unique_token_counts > 0) * presence_penalties); //python True的值为1,False的值为0
 
   // scatter the modified score back to logits
   logits.scatter_(/*dim=*/1, /*index=*/unique_token_ids, /*src=*/score);
