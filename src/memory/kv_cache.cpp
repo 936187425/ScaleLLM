@@ -118,22 +118,22 @@ std::tuple<torch::Tensor, torch::Tensor> KVCache::get_kv_cache(
 }
 
 std::tuple<torch::Tensor, torch::Tensor> KVCache::get_kv_cache(
-    const torch::Tensor& block_tables,
-    const torch::Tensor& kv_cu_seq_lens) const {
-  const int64_t n_seqs = kv_cu_seq_lens.numel() - 1;
+    const torch::Tensor& block_tables, //[n_seq,max_n_blocks]
+    const torch::Tensor& kv_cu_seq_lens) const { //[batch_size+1],主要区分q_cu_seq_lens和kv_cu_seq_lens的区别.
+  const int64_t n_seqs = kv_cu_seq_lens.numel() - 1; //batch_size
   DCHECK(block_tables.size(0) == n_seqs);
 
   const torch::Tensor block_tables_cpu = block_tables.cpu();
   const torch::Tensor kv_cu_seq_lens_cpu = kv_cu_seq_lens.cpu();
 
-  std::vector<torch::Tensor> keys;
-  keys.reserve(n_seqs);
-  std::vector<torch::Tensor> values;
-  values.reserve(n_seqs);
+  std::vector<torch::Tensor> keys; //Tensor[seq_len,n_local_kv_heads,head_dim]
+  keys.reserve(n_seqs);//keys里一共有n_seqs个序列，每个序列对应的Tensor[seq_len,n_local_kv_heads,head_dim]
+  std::vector<torch::Tensor> values; //Tensor[seq_len,n_local_kv_heads,head_dim]
+  values.reserve(n_seqs);//values一共有n_seqs个,每个序列对应的Tensor[seq_len,n_local_kv_heads,head_dim]
 
   const int32_t* kv_cu_lens = kv_cu_seq_lens_cpu.data_ptr<int32_t>();
   for (int64_t i = 0; i < n_seqs; ++i) {
-    const int32_t seq_len = kv_cu_lens[i + 1] - kv_cu_lens[i];
+    const int32_t seq_len = kv_cu_lens[i + 1] - kv_cu_lens[i];//计算出序列i的长度
     const int32_t* block_ids = block_tables_cpu[i].data_ptr<int32_t>();
     for (int64_t j = 0; j < seq_len; ++j) {
       const int64_t block_id = block_ids[j / block_size_];
@@ -141,11 +141,11 @@ std::tuple<torch::Tensor, torch::Tensor> KVCache::get_kv_cache(
 
       // key = key_cache_[block_id, block_offset, :, :]
       const auto key =
-          key_cache_.index({block_id, block_offset, ISlice(), ISlice()});
+          key_cache_.index({block_id, block_offset, ISlice(), ISlice()});//通过block_id*block_size+block_offset计算出global slot_id.
       keys.push_back(key.reshape({num_kv_heads_, head_size_}));
       // value = value_cache_[block_id, block_offset, :, :]
       const auto value =
-          value_cache_.index({block_id, block_offset, ISlice(), ISlice()});
+          value_cache_.index({block_id, block_offset, ISlice(), ISlice()});//通过block_id*block_size+block_offset计算出global slot_id.
       values.push_back(value);
     }
   }

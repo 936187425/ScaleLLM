@@ -121,7 +121,7 @@ ModelOutput Worker::execute_model(const ModelInput& inputs) {
                                        sampling_params.unique_token_counts,
                                        sampling_params.unique_token_ids_lens);
     // set logits to output
-    output.logits = logits;
+    output.logits = logits;//[n_tokens,vocab_size]
 
     auto sampler = std::make_unique<Sampler>(sampling_params.do_sample);
     // select sample logits
