@@ -125,7 +125,7 @@ void BlockManager::allocate_shared_blocks_for(Sequence* sequence) {
 void BlockManager::cache_blocks_for(Sequence* sequence) {
   if (options_.enable_prefix_cache()) {
     // only insert tokens in kv cache to the prefix cache
-    const auto tokens_ids = sequence->tokens_in_kv_cache();
+    const auto tokens_ids = sequence->tokens_in_kv_cache(); 
     const auto blocks = sequence->blocks();
     // Add the kv cache to the prefix cache
     prefix_cache_.insert(tokens_ids, blocks);

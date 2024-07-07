@@ -54,15 +54,15 @@ PrefixCache::~PrefixCache() {
 // return matched blocks
 std::vector<Block> PrefixCache::match(const Slice<int32_t>& token_ids) {
   const int64_t now = absl::ToUnixMicros(absl::Now());
-  std::vector<Block> blocks;
+  std::vector<Block> blocks;// blocks
 
   // allign tokens to block boundary
-  const size_t n_tokens = round_down(token_ids.size(), block_size_);
-  auto tokens_slice = token_ids.slice(0, n_tokens);
+  const size_t n_tokens = round_down(token_ids.size(), block_size_); //n_tokens是block_size的整数倍
+  auto tokens_slice = token_ids.slice(0, n_tokens); //从token_ids中进行截断出[0,n_tokens]
 
   size_t matched_tokens = 0;
   // start from the root node
-  Node* next_node = &root_;
+  Node* next_node = &root_; //Prefix Cache的整数倍
   while (next_node != nullptr && !tokens_slice.empty()) {
     Node* curr = next_node;
     // reset the next node
@@ -76,7 +76,7 @@ std::vector<Block> PrefixCache::match(const Slice<int32_t>& token_ids) {
       prefix_length = round_down(prefix_length, block_size_);
 
       // find a match
-      if (prefix_length > 0) {
+      if (prefix_length > 0) { 
         // update the last access time and move the node to the back of the LRU
         child->last_access_time = now;
         move_node_to_lru_back(child);
@@ -87,7 +87,7 @@ std::vector<Block> PrefixCache::match(const Slice<int32_t>& token_ids) {
         const size_t n_blocks = prefix_length / block_size_;
         blocks.insert(blocks.end(),
                       child->blocks.begin(),
-                      child->blocks.begin() + n_blocks);
+                      child->blocks.begin() + n_blocks); 
         tokens_slice = tokens_slice.slice(prefix_length);
 
         if (prefix_length == child->token_ids.size()) {
@@ -134,7 +134,7 @@ size_t PrefixCache::insert(const Slice<int32_t>& token_ids,
       // we only cache a whole block, truncate the prefix length
       prefix_length = round_down(prefix_length, block_size_);
 
-      // find a match
+      // find a match,prefix_length>0
       if (prefix_length > 0) {
         // update the last access time and move the node to the back of the LRU
         child->last_access_time = now;
@@ -149,7 +149,7 @@ size_t PrefixCache::insert(const Slice<int32_t>& token_ids,
 
         if (prefix_length < child->token_ids.size()) {
           // partial match, split the child node on the common prefix
-          split_node(child, prefix_length);
+          split_node(child, prefix_length);//split_node
         }
         next_node = child;
         break;
@@ -167,9 +167,9 @@ size_t PrefixCache::insert(const Slice<int32_t>& token_ids,
 
 // release the blocks hold by the prefix cache
 size_t PrefixCache::evict(size_t n_blocks_to_evict) {
-  size_t total_evicted = 0;
+  size_t total_evicted = 0; //已经替换出去的blocks数 
   // loop until no blocks to evict
-  while (total_evicted < n_blocks_to_evict) {
+  while (total_evicted < n_blocks_to_evict) { //n_blocks_to_evict:是已经被替换出去的blocks
     // conduct multiple round scaning to avoid invalidating leaf_nodes_ iterator
     const size_t evicted = evict_helper(n_blocks_to_evict - total_evicted);
     if (evicted == 0) {
@@ -290,7 +290,7 @@ void PrefixCache::create_child(Node* node,
       << "The number of tokens "
          "should be equal to the number of blocks times block size";
 
-  Node* child = new Node();
+  Node* child = new Node(); 
   add_node_to_lru_back(child);
   ++num_nodes_;
 
